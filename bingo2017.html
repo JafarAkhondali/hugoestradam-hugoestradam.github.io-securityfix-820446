@@ -1,0 +1,315 @@
+<!doctype html>
+
+<html>
+  <head>
+    <style>
+      
+      table { 
+        border-style: solid;
+        font-size: 1em;     
+        width: 800px;
+        height: 500px;
+      }  
+      th {color: gray;}
+      tr {border-style: solid; }
+      td {
+          border-style: solid;
+          text-align: center;
+          width: 160px;
+          height: 100px;
+        }
+        
+        .center { 
+          background: #CCCCFF;
+          border-color: orange;
+        }
+       .selected { background: #CCCCFF ;}
+
+      /* th { border-style: solid;} */
+    </style>
+
+    <script src="scripts/jquery-2.0.3.js" ></script>  
+    <Script src="scripts/carhartl-jquery-cookie-3caf209/jquery.cookie.js"></script>
+    <script src="scripts/underscore.js" ></script>  
+    <script>
+     /* data */
+     var data = ["hello", "there", "babo", "new", "gago", "this is a lot longer"];
+     var content = [
+              'Classic Alberto',
+              'American Politics',
+              'Grilled cheese',
+              'Mac and cheese',
+              'TMI',
+              'NEXT',
+              'KTGAOW',
+              'Intro Thread for Friend',
+              'Someone deactivates',
+              'Meet ups with IRL friends calling it a Gloves meet up',
+              'Gloves Meet Ups',
+              'Appreciation thread',
+              'TGAO specific meme',
+              'Mention of a subgroup ',
+              'Bitching about job',
+              'Someone asking about bingo',
+              'Drama Thursday',
+              'Should have been a PM',
+              'Picture of cat',
+              'Picture of dog',
+              'Look what I made',
+              'AU',
+              'Forever Alone (Post with no comments after at least an hour)',
+              'You can’t eat with us (Inside Joke from meet up or hangout etc)',
+              'Hostile to Newbs',
+              'Sierra Bob Rosses',
+              'Ships running into walls',
+              'New sub',
+              'Necromancy',
+              'Glovesies banging while travelling',
+              'lacist',
+              'Ophelia loses her shit because people aren\'t bingoing correctly',
+              'Real life events reminds of member. They are tagged.',
+              'Someone blocked me?',
+              'Rubben tagged in KD post',
+              'room full of pussies',
+              'Spent money frivolously. Now I am broke. Praise me!',
+              'Adulting',
+              '5/7',
+              'Danny being unnecessarily hostile',
+              'Someone telling Danny he is being unnecessarily hostile',
+              'x is gone?',
+              'Nostalgia for Gloves past',
+              'OG',
+              'I love you all!',
+              'Actual knives a newb',
+              'red lipstick thread',
+              'selfie thread (more than three)',
+              'Canadians frustrated with US',
+              'Trash dove',
+              'Hugo liveblogs MIL',
+              'What is #bingosquare?',
+              'Ophie tells a story',
+              'Someone hints at a secret group',
+              'Gossip from somewhere else',
+              'Asks for no advice -- gets at least three',
+              'Am I the only one who...',
+              'Post belongs in subgroup',
+              'Failed drama post',
+              'Deliberate Drama Thursday post',
+              'Lurker posts'
+          ];
+
+
+
+     /* modules */
+
+     var positions = (function($,_) { 
+       var p = {};
+
+
+       p.clear = function() {
+          setCookie([]);
+       }
+
+
+       p.remove = function(position){
+          removePosition(position);
+       }
+
+       p.add = function(position){
+          addPosition(position);
+       }
+
+       p.get = function(){
+          return getPositions(); 
+       }
+
+
+       function getPositions(){
+          var result = [];
+          
+          var value = $.cookie("selectedCellsTGAO");
+
+          if (value != undefined){
+            result  = JSON.parse(value);
+          }
+
+          return result;
+       }
+
+       function removePosition(position){
+            var positions = getPositions();
+            var newPositions = _.without(positions, position);
+
+            setCookie(newPositions);
+       }
+       
+       function addPosition(position){
+         var positions = getPositions();
+         positions.push(position);
+         var newPositions = _.uniq(positions);
+          setCookie(newPositions);
+       }
+
+       function setCookie(list){
+         $.cookie("selectedCellsTGAO", JSON.stringify(list.sort()), {expires: 30});
+       }
+
+       return p;
+   }($,_));
+
+     var card = (function($, _, positions){
+        var boardCookie = "board";
+        var c = {};
+
+        c.load = function(className, data){
+          (boardExists()) ? retrieve(className) : create(className, data);
+        }
+
+        c.create = function(className, data){
+          create(className, data);
+        }
+
+        function boardExists(){
+          var result = false;
+          var board = $.cookie(boardCookie);
+
+          if (board) {
+            result = true;
+          }
+          return result;
+        }
+
+        function retrieve(className) {
+          var value =  $.cookie(boardCookie);
+          var board = JSON.parse(value);
+          var selected = positions.get();
+          
+          populate(className, board, selected);
+        }
+
+        function create(className, data){
+          var board = select(data, 12 , "Butts and or Zack");
+          $.cookie(boardCookie, JSON.stringify(board), {expires: 365});
+          var selected = positions.get();
+          
+          populate(className, board, selected);
+        };
+
+        function populate(className, data, selected){
+          var selector = "." + className;
+          var t = table(data, selected);
+          $(selector).html(t);
+        }
+
+        function select(data, centerPosition, centerValue){
+          var result = _.shuffle(data).splice(0, 24);  
+          result.splice(centerPosition, 0, centerValue); 
+
+          return result;
+        }
+
+        function table(data, selected){
+          var result = "<table border='1'>";
+
+          result += "<tr><th>D</th><th>F</th><th>T</th><th>B</th><th>A</th></tr>";
+          result += grid(data, selected);
+          result += "</table>";
+
+          return result;
+        }
+
+        function td(data, className, position){
+          return "<td class='" + className + 
+            "' data-position='" + position +  "' >" + 
+            data +  "</td>";
+        }
+
+        function classes(main, selected, index){
+          var result = main;
+          
+          if (_.contains(selected, index.toString())){
+             result += " selected";
+          }
+
+          return result;
+        }
+
+        function grid(data, selected){
+          var result = "";
+          var count = 0;
+          
+          for (var i = 0; i < data.length; i++){
+            if (count % 5 == 0) {
+              if (result != ""){
+                result += "</tr>";
+              }
+              result += "<tr>";
+              count  = 0;
+            }
+            
+            result += (i == 12) ? 
+                      td(data[i], "center") :
+                      td(data[i], classes("cell", selected, i), i);
+            count++;
+          }
+
+          result += "</tr>";
+
+          return result;
+        }
+
+        return c;    
+     }($,_, positions));  
+
+     /* start */ 
+     $(document).ready(function(){
+         card.load("board", content);  
+
+         $("#reset").click(function(){
+            card.create("board", content); 
+         });
+
+         $("#clear").click(function(){
+            $(".cell").removeClass("selected"); 
+            positions.clear();
+         });
+
+         $("table").on("click", ".cell", function(){
+           var classes = _.flatten([$(this).attr("class").split(" ")]);
+           
+           if (_.contains(classes, "selected")) {
+              $(this).removeClass("selected");    
+
+              var position = $(this).attr("data-position");
+              positions.remove(position); 
+           } else {
+              $(this).addClass("selected");    
+              
+              var position = $(this).attr("data-position");
+              positions.add(position); 
+           }
+         });
+
+     });
+
+    </script>
+  </head>
+  <body>
+    <h1>TGAO Loteria</h1>
+    <input type="button" id="reset" value="New board" />
+    <input type="button" id="clear" value="Clear board" />
+    <div class="board"></div>
+    <p>Version 0.0.6  pot stirer</p>
+    <h5>Version history</h5>
+    <ul>
+      <li>0.0.6 -- Square updated</li>
+      <li>0.0.5 -- Squares updated</li>
+      <li>0.0.4 -- TGAO loteria version; no collision with anf bingo card</li>
+      <li>0.0.3 -- colors cells when clicked; added clear board button; remembers selection on each refresh; remembers selected cells for 2 weeks</li>
+      <li>0.0.2 -- script remembers your board until reset for a year</li>
+      <li>0.0.1 -- script creates board</li>
+    </ul>
+      <p> &copy; 2015 Lame Games Studios. All rights reserved <p>
+  </body>
+</html>
+
