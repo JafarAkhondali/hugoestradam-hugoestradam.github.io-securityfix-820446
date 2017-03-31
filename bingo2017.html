@@ -70,7 +70,6 @@
 'Hostile to Newbs',
 'The Prodigal Glove returns!',
 'We used to be nerds (post about actual science/math/academic study/report: NOT comic/movie/fandom based)',
-'> Jay',
 'Drunk!',
 'Awkward Turtle',
 '"Introverted"',
@@ -193,7 +192,7 @@
         }
 
         function create(className, data){
-          var board = select(data, 12 , "Hugo makes bingo squares");
+          var board = select(data, 12 , "> Jay");
           $.cookie(boardCookie, JSON.stringify(board), {expires: 365});
           var selected = positions.get();
           
